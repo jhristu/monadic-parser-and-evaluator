@@ -94,6 +94,15 @@ tmabsparser = rwca (do rwca (satisfy (== '\\'))
                        tm <- tmparser
                        return (TmAbs x ty tm))
 
+tmfixparser :: Parser Tm
+tmfixparser = rwca (do rwca (string "fix")
+                       x <- varparser
+                       rwca (string ":")
+                       ty <- typarser
+                       rwca (string ".")
+                       tm <- tmparser
+                       return (TmFix x ty tm))
+
 tmappparser :: Parser Tm
 tmappparser = rwca (do tm <- tmsimpleparser
                        tms <- (pstar tmsimpleparser)
@@ -118,22 +127,31 @@ tmifparser = rwca (do rwca (string "if")
                       return (TmIf tm1 tm2 tm3))
 
 tmletparser :: Parser Tm
+-- tmletparser = rwca (do rwca (string "let")
+--                        x <- varparser
+--                        rwca (string "=")
+--                        tm1 <- tmparser
+--                        rwca (string "in")
+--                        tm2 <- tmparser
+--                        return (TmLet x tm1 tm2))
 tmletparser = rwca (do rwca (string "let")
                        x <- varparser
+                       rwca (string ":")
+                       ty <- typarser
                        rwca (string "=")
                        tm1 <- tmparser
                        rwca (string "in")
                        tm2 <- tmparser
-                       return (TmLet x tm1 tm2))
+                       return (TmApp (TmAbs x ty tm2) tm1))
 
 tmrefparser :: Parser Tm
 tmrefparser = rwca (do rwca (string "ref")
-                       tm <- tmparser
+                       tm <- tmsimpleparser
                        return (TmRef tm))
 
 tmderefparser :: Parser Tm
 tmderefparser = rwca (do rwca (string "!")
-                         tm <- tmparser
+                         tm <- tmsimpleparser
                          return (TmDeref tm))
 
 tmassignparser :: Parser Tm
@@ -203,5 +221,8 @@ tysimpleparser = tyboolparser `pand`
 typarser :: Parser Ty
 typarser = tyarrowparser
 
-parse :: String -> Parser a -> [(a, String)]
-parse s p = con (rwcb p) s
+parse :: String -> Tm
+parse s = case con (rwcb tmparser) s of
+            [] -> error "nothing could be parsed"
+            ((tm, s):r) -> tm
+--            ((tm, s):r) -> error ("could not parse the remainder: " ++ s)
