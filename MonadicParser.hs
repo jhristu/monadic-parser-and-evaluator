@@ -96,12 +96,8 @@ tmabsparser = rwca (do rwca (satisfy (== '\\'))
 
 tmfixparser :: Parser Tm
 tmfixparser = rwca (do rwca (string "fix")
-                       x <- varparser
-                       rwca (string ":")
-                       ty <- typarser
-                       rwca (string ".")
                        tm <- tmparser
-                       return (TmFix x ty tm))
+                       return (TmFix tm))
 
 tmappparser :: Parser Tm
 tmappparser = rwca (do tm <- tmsimpleparser
@@ -127,13 +123,6 @@ tmifparser = rwca (do rwca (string "if")
                       return (TmIf tm1 tm2 tm3))
 
 tmletparser :: Parser Tm
--- tmletparser = rwca (do rwca (string "let")
---                        x <- varparser
---                        rwca (string "=")
---                        tm1 <- tmparser
---                        rwca (string "in")
---                        tm2 <- tmparser
---                        return (TmLet x tm1 tm2))
 tmletparser = rwca (do rwca (string "let")
                        x <- varparser
                        rwca (string ":")
@@ -155,17 +144,12 @@ tmderefparser = rwca (do rwca (string "!")
                          return (TmDeref tm))
 
 tmassignparser :: Parser Tm
--- tmassignparser = rwca (do tm1 <- tmparser
-                          -- rwca (string ":=")
-                          -- tm2 <- tmparser
-                          -- return (TmAssign tm1 tm2))
 tmassignparser = rwca (do tm <- tmappparser
                           tms <- (pstar (do (rwca (string ":="))
                                             tms0 <- tmappparser
                                             return tms0))
                           return (foldl (\tm1 tm2 -> (TmAssign tm1 tm2))
                                         tm tms))
-                          
 
 tmsimpleparser :: Parser Tm
 tmsimpleparser = tmvarparser `pand`
@@ -177,7 +161,6 @@ tmsimpleparser = tmvarparser `pand`
                  tmletparser `pand`
                  tmrefparser `pand`
                  tmderefparser
-                 -- tmassignparser
 
 tmparser :: Parser Tm
 tmparser = tmassignparser

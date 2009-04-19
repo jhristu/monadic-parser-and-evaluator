@@ -14,7 +14,7 @@ data Tm = TmTrue
         | TmVar Var
         | TmAbs Var Ty Tm
         | TmApp Tm Tm
-        | TmFix Var Ty Tm
+        | TmFix Tm
         | TmUnit
         | TmRef Tm
         | TmDeref Tm
@@ -32,7 +32,7 @@ instance Show Tm where
     show (TmVar v) = v
     show (TmAbs v ty tm) = "(\\" ++ v ++ ":" ++ show ty ++ " -> " ++ show tm ++ ")"
     show (TmApp tm1 tm2) = "(" ++ show tm1 ++ " " ++ show tm2 ++ ")"
-    show (TmFix v ty tm) = "(fix " ++ show v ++ ":" ++ show ty ++ " -> " ++ show tm ++ ")"
+    show (TmFix tm) = "(fix " ++ show tm ++ ")"
     show (TmUnit) = "unit"
     show (TmRef tm) = "(ref " ++ show tm ++ ")"
     show (TmDeref tm) = "(! " ++ show tm ++ ")"
@@ -70,6 +70,6 @@ data Val = ValBool Bool
 instance Show Val where
     show (ValBool val) = show val
     show (ValNum val) = show val
-    show (ValAbs var tm env) = "\\" ++ var ++ " . " ++ show tm
+    show (ValAbs var tm env) = "(\\" ++ var ++ " . " ++ show tm ++ ")"
     show (ValUnit) = "Unit"
     show (ValLoc val) = "Location" ++ show val

@@ -91,10 +91,10 @@ tmeval (TmApp tm1 tm2) n = do tm1' <- tmeval tm1 n
 -- tmeval (TmFix var ty tm) n = Evaluator (\s -> (f, s'))
 --     where (f, s') = (tmeval tm (extend n var f))
 --    where f = tmeval tm (extend n var (con f 
-tmeval (TmFix var ty tm) n = Evaluator
-                             (\s -> let (f, s') =
-                                            con (tmeval tm (extend n var f)) s in
-                                    (f, s'))
+tmeval (TmFix tm) n = do (ValAbs var tm1 n1) <- tmeval tm n
+                         Evaluator (\s -> let (f, s') =
+                                                  con (tmeval tm (extend n var f)) s in
+                                          (f, s'))
 tmeval (TmUnit) n = return (ValUnit)
 tmeval (TmRef tm) n = do val <- tmeval tm n
                          l <- nextloc
@@ -109,5 +109,5 @@ tmeval (TmAssign tm1 tm2) n = do (ValLoc loc) <- tmeval tm1 n
                                  return ValUnit
 tmeval (TmLoc loc) n = return (ValLoc loc)
 
-eval :: Tm -> Val
+--eval :: Tm -> Val
 eval tm = fst (con (tmeval tm emptyenv) emptystore)
