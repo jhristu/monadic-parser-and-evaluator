@@ -1,0 +1,3 @@
+let x : Ref Bool = ref true in
+let temp : Unit = x := false in
+if !x then true else false

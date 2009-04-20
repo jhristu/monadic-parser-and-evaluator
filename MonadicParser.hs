@@ -122,6 +122,25 @@ tmifparser = rwca (do rwca (string "if")
                       tm3 <- tmparser
                       return (TmIf tm1 tm2 tm3))
 
+tmzeroparser :: Parser Tm
+tmzeroparser = rwca (do string "zero"
+                        return TmZero)
+
+tmsuccparser :: Parser Tm
+tmsuccparser = rwca (do rwca (string "succ")
+                        tm <- tmparser
+                        return (TmSucc tm))
+
+tmpredparser :: Parser Tm
+tmpredparser = rwca (do rwca (string "pred")
+                        tm <- tmparser
+                        return (TmPred tm))
+
+tmiszeroparser :: Parser Tm
+tmiszeroparser = rwca (do rwca (string "iszero")
+                          tm <- tmparser
+                          return (TmIsZero tm))
+
 tmletparser :: Parser Tm
 tmletparser = rwca (do rwca (string "let")
                        x <- varparser
@@ -154,9 +173,14 @@ tmassignparser = rwca (do tm <- tmappparser
 tmsimpleparser :: Parser Tm
 tmsimpleparser = tmvarparser `pand`
                  tmabsparser `pand`
+                 tmfixparser `pand`
                  paren tmparser `pand`
                  tmtrueparser `pand`
                  tmfalseparser `pand`
+                 tmzeroparser `pand`
+                 tmsuccparser `pand`
+                 tmpredparser `pand`
+                 tmiszeroparser `pand`
                  tmifparser `pand`
                  tmletparser `pand`
                  tmrefparser `pand`
@@ -165,7 +189,7 @@ tmsimpleparser = tmvarparser `pand`
 tmparser :: Parser Tm
 tmparser = tmassignparser
 
-keywords = ["true", "false", "if", "then", "else", "let", "in", "ref"]
+keywords = ["fix", "true", "false", "if", "then", "else", "let", "in", "ref", "succ", "pred", "zero", "iszero"]
 
 varparser :: Parser Var
 varparser = rwca (do v <- pplus (satisfy isAlpha)
@@ -185,6 +209,10 @@ tyrefparser = rwca (do rwca (string "Ref")
                        ty <- typarser
                        return (TyRef ty))
 
+tynatparser :: Parser Ty
+tynatparser = rwca (do string "Nat"
+                       return TyNat)
+
 tyarrowparser :: Parser Ty
 tyarrowparser = rwca (do ty1 <- rwca tysimpleparser
                          (por (do rwca (string "->")
@@ -199,6 +227,7 @@ tysimpleparser :: Parser Ty
 tysimpleparser = tyboolparser `pand`
                  tyunitparser `pand`
                  tyrefparser `pand`
+                 tynatparser `pand`
                  paren typarser
 
 typarser :: Parser Ty

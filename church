@@ -1,0 +1,7 @@
+let czero:Unit = \s:Unit . \z:Unit . z in
+let cone:Unit = \s:Unit . \z:Unit . s z in
+let ctwo:Unit = \s:Unit . \z:Unit . s (s z) in
+let cthree:Unit = \s:Unit . \z:Unit . s (s (s z)) in
+let cfour:Unit = \s:Unit . \z:Unit . s (s (s (s z))) in
+let plus:Unit = \m:Unit . \n:Unit . \s:Unit . \z:Unit . m s (n s z) in
+plus cone cthree

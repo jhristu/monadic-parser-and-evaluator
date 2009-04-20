@@ -1,0 +1,6 @@
+let ff:(Bool -> Bool) -> Bool -> Bool = \u:Bool -> Bool.
+    \x:Bool.
+        if x then true
+        else u true in
+let realff:Bool -> Bool = fix ff in
+(realff false)

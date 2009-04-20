@@ -93,7 +93,7 @@ tmeval (TmApp tm1 tm2) n = do tm1' <- tmeval tm1 n
 --    where f = tmeval tm (extend n var (con f 
 tmeval (TmFix tm) n = do (ValAbs var tm1 n1) <- tmeval tm n
                          Evaluator (\s -> let (f, s') =
-                                                  con (tmeval tm (extend n var f)) s in
+                                                  con (tmeval tm1 (extend n var f)) s in
                                           (f, s'))
 tmeval (TmUnit) n = return (ValUnit)
 tmeval (TmRef tm) n = do val <- tmeval tm n
