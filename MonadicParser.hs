@@ -163,12 +163,17 @@ tmderefparser = rwca (do rwca (string "!")
                          return (TmDeref tm))
 
 tmassignparser :: Parser Tm
-tmassignparser = rwca (do tm <- tmappparser
-                          tms <- (pstar (do (rwca (string ":="))
-                                            tms0 <- tmappparser
-                                            return tms0))
-                          return (foldl (\tm1 tm2 -> (TmAssign tm1 tm2))
-                                        tm tms))
+-- tmassignparser = rwca (do tm <- tmappparser
+--                           tms <- (pstar (do (rwca (string ":="))
+--                                             tms0 <- tmappparser
+--                                             return tms0))
+--                           return (foldr (\tm1 tm2 -> (TmAssign tm1 tm2))
+--                                         tm tms))
+tmassignparser = rwca (do tm1 <- tmappparser
+                          (por (do rwca (string ":=")
+                                   tm2 <- tmassignparser
+                                   return (TmAssign tm1 tm2))
+                           (return tm1)))
 
 tmsimpleparser :: Parser Tm
 tmsimpleparser = tmvarparser `pand`
